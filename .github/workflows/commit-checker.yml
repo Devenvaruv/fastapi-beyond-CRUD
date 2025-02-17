@@ -1,0 +1,91 @@
+name: Conventional Commits Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-conventional-commits:
+    runs-on: ubuntu-latest
+    environment: DATABASE_URL 
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+      REDIS_URL: ${{ secrets.REDIS_URL }}
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_FROM: ${{ secrets.MAIL_FROM }}
+      MAIL_FROM_NAME: ${{ secrets.MAIL_FROM_NAME }}
+      DOMAIN: ${{ secrets.DOMAIN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Conventional Commits
+        id: commit-check
+        uses: webiny/action-conventional-commits@v1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          failOnError: true
+
+      - name: Comment on PR if check fails
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: number,
+              body: "This PR has commits that do not follow the Conventional Commits standard. Please update your commit messages and try again"
+            });
+
+      - name: Close PR if check fails
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, pull_number } = context.issue;
+            github.rest.pulls.update({
+              owner,
+              repo,
+              pull_number: number,
+              state: 'closed'
+            });
+            github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: number,
+              body: "This PR has been closed because it did not meet the Conventional Commits standards."
+            });
+
+      - name: Send Test Email on Failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ env.MAIL_SERVER }}
+          server_port: ${{ env.MAIL_PORT }}
+          username: ${{ env.MAIL_USERNAME }}
+          password: ${{ env.MAIL_PASSWORD }}
+          subject: "PR Failed Conventional Commits Check: #${{ github.event.pull_request.number }}"
+          to: ${{ env.MAIL_FROM }}
+          from: "${{ env.MAIL_FROM_NAME }} <${{ env.MAIL_FROM }}>"
+          body: |
+            PR #${{ github.event.pull_request.number }} failed the Conventional Commits check.
+
+            Repository: ${{ github.repository }}
+            PR Title: ${{ github.event.pull_request.title }}
+            PR URL: ${{ github.event.pull_request.html_url }}
+            Submitted By: ${{ github.event.pull_request.user.login }}
+
+            review and update the commit messages using the Conventional Commits format.
+
+            ---
+            Sent from GitHub Actions.
