@@ -12,4 +12,8 @@ EXPOSE 8000
 
 ENV HOST 0.0.0.0
 
-CMD ["fastapi","run","src","--port","8000","--host","0.0.0.0"]
+COPY docker-start.sh /docker-start.sh
+
+RUN chmod +x /docker-start.sh
+
+ENTRYPOINT [ "/docker-start.sh" ]
