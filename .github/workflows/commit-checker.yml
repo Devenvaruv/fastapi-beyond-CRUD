@@ -52,17 +52,20 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { owner, repo, pull_number } = context.issue;
-            github.rest.pulls.update({
+            const { owner, repo} = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            await github.rest.pulls.update({
               owner,
               repo,
-              pull_number: number,
+              pull_number,
               state: 'closed'
             });
-            github.rest.issues.createComment({
+
+            await github.rest.issues.createComment({
               owner,
               repo,
-              issue_number: number,
+              issue_number: pull_number,
               body: "This PR has been closed because it did not meet the Conventional Commits standards."
             });
 
