@@ -66,18 +66,18 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push Web Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-beyond-crud-web:nightly-build -f Dockerfile .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-beyond-crud-web:nightly-build
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/fastapi-beyond-crud-web:nightly-build -f Dockerfile .
+          docker push ${{ secrets.DOCKER_USERNAME }}/fastapi-beyond-crud-web:nightly-build
 
       - name: Push Celery Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-beyond-crud-celery:nightly-build -f Dockerfile .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-beyond-crud-celery:nightly-build
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/fastapi-beyond-crud-celery:nightly-build -f Dockerfile .
+          docker push ${{ secrets.DOCKER_USERNAME }}/fastapi-beyond-crud-celery:nightly-build
 
       - name: Send failure email if image push fails
         if: failure()
