@@ -54,7 +54,7 @@ jobs:
           to: ${{ env.MAIL_FROM }}
           from: "${{ env.MAIL_FROM_NAME }} <${{ env.MAIL_FROM }}>"
           body: |
-            "The nightly build tests have failed. The build process will execute"
+            "The nightly build tests have failed. The build process will be skipped"
 
   build-and-push:
     name: Push Docker Image
