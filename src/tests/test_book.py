@@ -36,8 +36,7 @@ def test_get_book_by_uid(test_client, fake_book_service,test_book, fake_session)
 
     assert fake_book_service.get_book_called_once()
     assert fake_book_service.get_book_called_once_with(test_book.uid,fake_session)
-    
-    assert False
+
 
 
 def test_update_book_by_uid(test_client, fake_book_service,test_book, fake_session):
