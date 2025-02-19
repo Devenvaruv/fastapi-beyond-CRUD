@@ -10,7 +10,21 @@ jobs:
   test:
     name: Run Test
     runs-on: ubuntu-latest
-    
+    environment: DATABASE_URL 
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+      REDIS_URL: ${{ secrets.REDIS_URL }}
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_FROM: ${{ secrets.MAIL_FROM }}
+      MAIL_FROM_NAME: ${{ secrets.MAIL_FROM_NAME }}
+      DOMAIN: ${{ secrets.DOMAIN }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -25,8 +39,6 @@ jobs:
           pip install -r requirements.txt  
 
       - name: Run Tests
-        
-        
         run: |
           pytest 
 
@@ -34,13 +46,13 @@ jobs:
         if: failure()
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: ${{ secrets.MAIL_SERVER }}
-          server_port: ${{ secrets.MAIL_PORT }}
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
+          server_address: ${{ env.MAIL_SERVER }}
+          server_port: ${{ env.MAIL_PORT }}
+          username: ${{ env.MAIL_USERNAME }}
+          password: ${{ env.MAIL_PASSWORD }}
           subject: "Nightly Build - Test Failed"
-          to: ${{ secrets.MAIL_FROM }}
-          from: "${{ secrets.MAIL_FROM_NAME }} <${{ secrets.MAIL_FROM }}>"
+          to: ${{ env.MAIL_FROM }}
+          from: "${{ env.MAIL_FROM_NAME }} <${{ env.MAIL_FROM }}>"
           body: |
             "The nightly build tests have failed. The build process will execute"
 
@@ -49,6 +61,20 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     environment: DATABASE_URL
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+      REDIS_URL: ${{ secrets.REDIS_URL }}
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_FROM: ${{ secrets.MAIL_FROM }}
+      MAIL_FROM_NAME: ${{ secrets.MAIL_FROM_NAME }}
+      DOMAIN: ${{ secrets.DOMAIN }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -73,12 +99,12 @@ jobs:
         if: failure()
         uses: dawidd6/action-send-mail@v4
         with:
-          server_address: ${{ secrets.MAIL_SERVER }}
-          server_port: ${{ secrets.MAIL_PORT }}
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
+          server_address: ${{ env.MAIL_SERVER }}
+          server_port: ${{ env.MAIL_PORT }}
+          username: ${{ env.MAIL_USERNAME }}
+          password: ${{ env.MAIL_PASSWORD }}
           subject: "Nightly Build - Docker Hub Image Push Failed!"
-          to: ${{ secrets.MAIL_FROM }}
-          from: "${{ secrets.MAIL_FROM_NAME }} <${{ secrets.MAIL_FROM }}>"
+          to: ${{ env.MAIL_FROM }}
+          from: "${{ env.MAIL_FROM_NAME }} <${{ env.MAIL_FROM }}>"
           body: |
             "The nightly build failed to push Docker images to Docker Hub."
